@@ -10,8 +10,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import service.ScoreService;
 import servlet.BaseServlet;
 
-@WebServlet("/api/data")
 public class ScoreController extends BaseServlet {
+
+	private static final long serialVersionUID = -3191452012459400080L;
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)

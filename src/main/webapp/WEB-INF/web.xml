@@ -8,4 +8,13 @@
         <welcome-file>jsp/sample1/index.jsp</welcome-file>
     </welcome-file-list>
 
+    <servlet>
+        <servlet-name>ScoreAPI</servlet-name>
+        <servlet-class>controller.ScoreController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ScoreAPI</servlet-name>
+        <url-pattern>/api/data</url-pattern>
+    </servlet-mapping>
+
 </web-app>
