@@ -8,10 +8,10 @@ http://localhost:8080/Sample1App/jsp/sample1/index.jsp
 ### JSPの値:
 API_URL = "${pageContext.request.contextPath}/api/data";
 
-<img src="main/webapp/img/img01.png" width="600">
+<img src="src/main/webapp/img/img01.png" width="600">
 
 ## ② API結果の確認
 http://localhost:8080/Sample1App/api/data
 > DBから取得したものになります。
 
-<img src="main/webapp/img/img02.png" width="600">
+<img src="src/main/webapp/img/img02.png" width="600">
