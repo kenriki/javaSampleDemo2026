@@ -16,3 +16,7 @@ http://localhost:8080/Sample1App/api/data
 > DBから取得したものになります。
 
 <img src="src/main/webapp/img/img02.png" width="600">
+
+## ③ マスタへの反映確認
+
+<img src="src/main/webapp/img/img03.png" width="600">
