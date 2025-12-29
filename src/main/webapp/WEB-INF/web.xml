@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="5.0">
+
+    <display-name>Sample1App</display-name>
+
+    <welcome-file-list>
+        <welcome-file>jsp/array_sample.jsp</welcome-file>
+        <welcome-file>jsp/sample1/index.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>

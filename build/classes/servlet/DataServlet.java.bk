@@ -1,0 +1,42 @@
+package servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+@WebServlet("/api/data")
+public class DataServlet extends HttpServlet {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		// 日本語文字化け対策とJSON宣言
+		response.setContentType("application/json;charset=UTF-8");
+		PrintWriter out = response.getWriter();
+
+		// 今回学習した「二次元配列」をデータとして準備
+		String[][] data = { { "1", "Java基礎", "A判定", "2025/12/01" }, { "2", "Webアプリ", "B判定", "2025/12/10" },
+				{ "3", "データベース", "A判定", "2025/12/15" }, { "4", "JavaScript", "C判定", "2025/12/20" },
+				{ "5", "ネットワーク", "A判定", "2025/12/25" } };
+
+		// 手動でJSON形式の文字列を構築（本来はJackson等のライブラリを使いますが、まずは基本で）
+		StringBuilder json = new StringBuilder();
+		json.append("{\"data\": [");
+		for (int i = 0; i < data.length; i++) {
+			json.append("[");
+			json.append("\"").append(data[i][0]).append("\",");
+			json.append("\"").append(data[i][1]).append("\",");
+			json.append("\"").append(data[i][2]).append("\",");
+			json.append("\"").append(data[i][3]).append("\"");
+			json.append("]");
+			if (i < data.length - 1)
+				json.append(",");
+		}
+		json.append("]}");
+
+		out.print(json.toString());
+	}
+}
