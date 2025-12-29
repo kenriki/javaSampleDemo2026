@@ -1,35 +1,59 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%-- JSTLタグライブラリの宣言 --%>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+
+<%-- メッセージソースの読み込み（src/main/resources/messages.properties） --%>
+<fmt:setBundle basename="messages" />
+
 <jsp:include page="/layout/header.jsp" />
 
-<%-- ローカルライブラリの読み込み --%>
+<%-- CSSの読み込み --%>
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/jquery.dataTables.css" />
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/css/sample1.css" />
 
-<h1>Sample1: DataTables 実装</h1>
+<div class="container">
+	<h1>
+		<fmt:message key="title.main" />
+	</h1>
 
-<div class="table-wrapper">
-	<table id="mainTable" class="display" style="width: 100%">
-		<thead>
-			<tr>
-				<th>ID</th>
-				<th>学習項目</th>
-				<th>評価</th>
-				<th>更新日</th>
-			</tr>
-		</thead>
-	</table>
+	<%-- 入力フォームエリア --%>
+	<div class="form-section"
+		style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+		<input type="text" id="subjectName"
+			placeholder="<fmt:message key="label.subject" />"> <select
+			id="evaluation">
+			<option value="A判定">A判定</option>
+			<option value="B判定">B判定</option>
+			<option value="C判定">C判定</option>
+		</select>
+		<button type="button" id="btnAdd" class="btn-primary">追加登録</button>
+	</div>
+
+	<%-- データテーブル --%>
+	<div class="table-wrapper">
+		<table id="mainTable" class="display" style="width: 100%">
+			<thead>
+				<tr>
+					<th><fmt:message key="label.id" /></th>
+					<th><fmt:message key="label.subject" /></th>
+					<th><fmt:message key="label.evaluation" /></th>
+					<th><fmt:message key="label.update_date" /></th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
 </div>
 
-<%-- JS読み込み（jQueryが先） --%>
 <script src="${pageContext.request.contextPath}/js/jquery-3.7.1.min.js"></script>
-<script
-	src="${pageContext.request.contextPath}/js/jquery.dataTables.js"></script>
+<script src="${pageContext.request.contextPath}/js/jquery.dataTables.js"></script>
 
-<%-- 外部JSにパスを教えるためのグローバル変数 --%>
 <script>
+	// JS側で利用するAPIパス
 	const API_URL = "${pageContext.request.contextPath}/api/data";
 </script>
 <script src="${pageContext.request.contextPath}/js/sample1.js"></script>

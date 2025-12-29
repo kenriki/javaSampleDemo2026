@@ -18,4 +18,26 @@ $(document).ready(function() {
 			{ "width": "10%", "targets": 0 }
 		]
 	});
+
+	// 追加登録ボタンのクリックイベント
+	$('#btnAdd').on('click', function() {
+		const data = {
+			subjectName: $('#subjectName').val(),
+			evaluation: $('#evaluation').val()
+		};
+
+		$.ajax({
+			url: API_URL, // ScoreController の @WebServlet("/api/data")
+			type: 'POST',
+			data: data,
+			success: function() {
+				alert('登録が完了しました！');
+				$('#subjectName').val(''); // 入力欄をクリア
+				$('#mainTable').DataTable().ajax.reload(); // テーブルだけを再読み込み
+			},
+			error: function() {
+				alert('登録に失敗しました。');
+			}
+		});
+	});
 });

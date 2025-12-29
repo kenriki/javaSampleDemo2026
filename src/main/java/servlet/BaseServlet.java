@@ -9,19 +9,29 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletResponse;
 
 public abstract class BaseServlet extends HttpServlet {
-	protected Properties dbProps = new Properties();
+	protected Properties dbProps = new Properties();  // dbアクセス用を追加
+	protected Properties msgProps = new Properties(); // メッセージ用を追加
 
 	@Override
 	public void init() throws ServletException {
-		try (InputStream is = getClass().getClassLoader().getResourceAsStream("db.properties")) {
-			if (is != null)
-				dbProps.load(is);
+		// DB情報の読み込み
+		loadConfig("db.properties", dbProps);
+		// メッセージ情報の読み込み
+		loadConfig("messages.properties", msgProps);
+	}
+
+	private void loadConfig(String fileName, Properties props) throws ServletException {
+		try (InputStream is = getClass().getClassLoader().getResourceAsStream(fileName)) {
+			if (is != null) {
+				props.load(is);
+			} else {
+				System.out.println("Warning: " + fileName + " not found.");
+			}
 		} catch (IOException e) {
 			throw new ServletException(e);
 		}
 	}
 
-	// JSON 形式にしてクライアントに送る
 	protected void sendAsJson(HttpServletResponse response, String jsonContent) throws IOException {
 		response.setContentType("application/json;charset=UTF-8");
 		PrintWriter out = response.getWriter();

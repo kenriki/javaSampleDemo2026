@@ -32,4 +32,17 @@ public class ScoreDAO {
 		}
 		return list;
 	}
+
+	public void insert(Score score) throws Exception {
+		Class.forName("org.postgresql.Driver");
+		String sql = "INSERT INTO db1.learning_scores (subject_name, evaluation, update_date) VALUES (?, ?, CURRENT_TIMESTAMP)";
+
+		try (Connection conn = DriverManager.getConnection(url, user, password);
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, score.getSubjectName());
+			pstmt.setString(2, score.getEvaluation());
+			pstmt.executeUpdate();
+		}
+	}
 }

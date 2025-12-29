@@ -29,6 +29,34 @@ public class ScoreController extends BaseServlet {
 			sendAsJson(response, json);
 
 		} catch (Exception e) {
+			// プロパティファイルからエラーメッセージを取得してログに出す
+			String errMsg = msgProps.getProperty("error.db.connection");
+			System.err.println(errMsg);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, errMsg);
+		}
+	}
+
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		// 1. 画面からの入力値を取得
+		String subjectName = request.getParameter("subjectName");
+		String evaluation = request.getParameter("evaluation");
+
+		// 2. Entity(Score)に詰める
+		Score score = new Score();
+		score.setSubjectName(subjectName);
+		score.setEvaluation(evaluation);
+
+		try {
+			// 3. Serviceを実行
+			ScoreService service = new ScoreService(dbProps);
+			service.registerScore(score);
+
+			// 4. 成功レスポンスを返す
+			response.setStatus(HttpServletResponse.SC_OK);
+		} catch (Exception e) {
 			e.printStackTrace();
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
