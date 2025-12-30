@@ -1,13 +1,13 @@
 package entity;
 
-public class Score {
+public class ScoreEntity {
 	private int id;
 	private String subjectName;
 	private String evaluation;
 	private String updateDate;
 
 	// 引数なしコンストラクタ
-	public Score() {
+	public ScoreEntity() {
 	}
 
 	// ゲッター・セッター

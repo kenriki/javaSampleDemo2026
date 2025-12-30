@@ -1,25 +1,27 @@
 $(document).ready(function() {
-	$('#mainTable').DataTable({
-		"ajax": API_URL, // JSPで定義した変数を使用
+	// 1. 最初に変数を定義し、DataTablesを初期化して代入する
+	// これを $(document).ready の一番上に書くことで、この中にある全ての処理で table が使えます
+	const table = $('#mainTable').DataTable({
+		"ajax": API_URL,
 		"language": {
 			"sEmptyTable": "データは登録されていません",
 			"sInfo": "_TOTAL_ 件中 _START_ から _END_ まで表示",
 			"sLengthMenu": "_MENU_ 件表示",
 			"sSearch": "絞り込み検索:",
 			"oPaginate": {
-				"sFirst": "先頭",
-				"sLast": "最終",
-				"sNext": "次へ",
-				"sPrevious": "前へ"
+				"sFirst": "先頭", "sLast": "最終", "sNext": "次へ", "sPrevious": "前へ"
+			},
+			"select": {
+				"rows": "（%d 行選択中）"
 			}
 		},
-		// 列ごとの微調整（例：ID列の幅を固定）
+		"select": true,
 		"columnDefs": [
-			{ "width": "10%", "targets": 0 }
+			{ "targets": 0, "visible": true }
 		]
 	});
 
-	// 追加登録ボタンのクリックイベント
+	// 2. 追加登録ボタンの処理（この波括弧 { } の中にあるので table が参照できます）
 	$('#btnAdd').on('click', function() {
 		const data = {
 			subjectName: $('#subjectName').val(),
@@ -27,17 +29,47 @@ $(document).ready(function() {
 		};
 
 		$.ajax({
-			url: API_URL, // ScoreController の @WebServlet("/api/data")
+			url: API_URL,
 			type: 'POST',
 			data: data,
 			success: function() {
 				alert('登録が完了しました！');
-				$('#subjectName').val(''); // 入力欄をクリア
-				$('#mainTable').DataTable().ajax.reload(); // テーブルだけを再読み込み
-			},
-			error: function() {
-				alert('登録に失敗しました。');
+				$('#subjectName').val('');
+				table.ajax.reload(); // 正常に動作します
 			}
 		});
+	});
+
+	// 3. 削除ボタンの処理（ここも $(document).ready の内側に移動しました）
+	// これにより、image_a5e86c.png のような「table is not defined」エラーを回避します
+	$('#btnDeleteSelected').on('click', function() {
+		const selectedRows = table.rows({ selected: true });
+		const selectedData = selectedRows.data();
+
+		if (selectedData.length === 0) {
+			alert("削除する行を選択してください");
+			return;
+		}
+
+		if (confirm(selectedData.length + " 件のデータを削除しますか？")) {
+			// 現在の仕様に合わせて1件目のIDを取得
+			const id = selectedData[0][0];
+
+			$.ajax({
+				url: API_URL,
+				type: 'POST',
+				data: {
+					action: 'delete',
+					id: id
+				},
+				success: function() {
+					alert('削除しました');
+					table.ajax.reload(); // 正常に動作します
+				},
+				error: function() {
+					alert('削除に失敗しました。');
+				}
+			});
+		}
 	});
 });

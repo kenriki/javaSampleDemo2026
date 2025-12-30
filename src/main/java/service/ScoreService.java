@@ -1,26 +1,42 @@
 package service;
 
-import java.util.*;
-import dao.ScoreDAO;
-import entity.Score;
+import java.util.List;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import dao.ScoreMapper;
+import entity.ScoreEntity;
 
 public class ScoreService {
-	private ScoreDAO dao;
+    private SqlSessionFactory sessionFactory;
 
-	public ScoreService(Properties props) {
-		this.dao = new ScoreDAO(props);
-	}
+    // コンストラクタで、作成済みの sessionFactory を受け取るようにします
+    public ScoreService(SqlSessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
 
-	public List<Score> getAllScores() throws Exception {
-		// ここで「判定Aだけ色を変える」などの加工ロジックを挟むことも可能
-		return dao.findAll();
-	}
+    public List<ScoreEntity> getAllScores() throws Exception {
+        try (SqlSession session = sessionFactory.openSession()) {
+            ScoreMapper mapper = session.getMapper(ScoreMapper.class);
+            return mapper.findAll();
+        }
+    }
 
-	public void registerScore(Score score) throws Exception {
-		// ここでバリデーション（空文字チェック等）を入れるのがServiceの役割です
-		if (score.getSubjectName() == null || score.getSubjectName().isEmpty()) {
-			throw new Exception("学習項目が空です");
-		}
-		dao.insert(score);
-	}
+    public void registerScore(ScoreEntity score) throws Exception {
+        if (score.getSubjectName() == null || score.getSubjectName().isEmpty()) {
+            throw new Exception("学習項目が空です");
+        }
+        try (SqlSession session = sessionFactory.openSession()) {
+            ScoreMapper mapper = session.getMapper(ScoreMapper.class);
+            mapper.insert(score);
+            session.commit(); // 登録時はコミットが必要です
+        }
+    }
+    
+    public void deleteScore(int id) throws Exception {
+        try (SqlSession session = sessionFactory.openSession()) {
+            ScoreMapper mapper = session.getMapper(ScoreMapper.class);
+            mapper.delete(id);
+            session.commit();
+        }
+    }
 }

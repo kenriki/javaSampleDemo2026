@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ScoreMapper">
+	<select id="findAll" resultType="entity.ScoreEntity">
+		SELECT id,
+		subject_name AS subjectName,
+		evaluation,
+		update_date AS updateDate
+		FROM "db1"."learning_scores"
+		ORDER BY id
+	</select>
+
+	<insert id="insert" parameterType="entity.ScoreEntity">
+		INSERT INTO db1.learning_scores (subject_name, evaluation, update_date)
+		VALUES (#{subjectName}, #{evaluation}, CURRENT_TIMESTAMP)
+	</insert>
+
+	<delete id="delete" parameterType="int">
+		DELETE FROM db1.learning_scores WHERE id = #{id}
+	</delete>
+</mapper>

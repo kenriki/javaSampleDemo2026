@@ -31,10 +31,14 @@
 			<option value="C判定">C判定</option>
 		</select>
 		<button type="button" id="btnAdd" class="btn-primary">追加登録</button>
+		<button type="button" id="btnDeleteSelected" class="btn-danger"
+			style="background-color: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">
+			選択した行を削除</button>
 	</div>
 
 	<%-- データテーブル --%>
 	<div class="table-wrapper">
+		<p style="font-size: 0.9em; color: #666;">※行をクリックすると選択（青色反転）できます</p>
 		<table id="mainTable" class="display" style="width: 100%">
 			<thead>
 				<tr>
@@ -51,6 +55,7 @@
 
 <script src="${pageContext.request.contextPath}/js/jquery-3.7.1.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/jquery.dataTables.js"></script>
+<script src="${pageContext.request.contextPath}/js/dataTables.select.min.js"></script>
 
 <script>
 	// JS側で利用するAPIパス

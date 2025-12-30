@@ -1,0 +1,48 @@
+package dao;
+
+import java.sql.*;
+import java.util.*;
+import entity.ScoreEntity;
+
+public class ScoreDAO {
+	private String url, user, password;
+
+	public ScoreDAO(Properties props) {
+		this.url = props.getProperty("db.url");
+		this.user = props.getProperty("db.user");
+		this.password = props.getProperty("db.password");
+	}
+
+	public List<ScoreEntity> findAll() throws Exception {
+		List<ScoreEntity> list = new ArrayList<>();
+		Class.forName("org.postgresql.Driver");
+
+		try (Connection conn = DriverManager.getConnection(url, user, password);
+				PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM db1.learning_scores ORDER BY id");
+				ResultSet rs = pstmt.executeQuery()) {
+
+			while (rs.next()) {
+				ScoreEntity s = new ScoreEntity();
+				s.setId(rs.getInt("id"));
+				s.setSubjectName(rs.getString("subject_name"));
+				s.setEvaluation(rs.getString("evaluation"));
+				s.setUpdateDate(rs.getString("update_date"));
+				list.add(s);
+			}
+		}
+		return list;
+	}
+
+	public void insert(ScoreEntity score) throws Exception {
+		Class.forName("org.postgresql.Driver");
+		String sql = "INSERT INTO db1.learning_scores (subject_name, evaluation, update_date) VALUES (?, ?, CURRENT_TIMESTAMP)";
+
+		try (Connection conn = DriverManager.getConnection(url, user, password);
+				PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, score.getSubjectName());
+			pstmt.setString(2, score.getEvaluation());
+			pstmt.executeUpdate();
+		}
+	}
+}

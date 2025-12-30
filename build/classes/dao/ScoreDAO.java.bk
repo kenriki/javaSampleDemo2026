@@ -2,7 +2,7 @@ package dao;
 
 import java.sql.*;
 import java.util.*;
-import entity.Score;
+import entity.ScoreEntity;
 
 public class ScoreDAO {
 	private String url, user, password;
@@ -13,8 +13,8 @@ public class ScoreDAO {
 		this.password = props.getProperty("db.password");
 	}
 
-	public List<Score> findAll() throws Exception {
-		List<Score> list = new ArrayList<>();
+	public List<ScoreEntity> findAll() throws Exception {
+		List<ScoreEntity> list = new ArrayList<>();
 		Class.forName("org.postgresql.Driver");
 
 		try (Connection conn = DriverManager.getConnection(url, user, password);
@@ -22,7 +22,7 @@ public class ScoreDAO {
 				ResultSet rs = pstmt.executeQuery()) {
 
 			while (rs.next()) {
-				Score s = new Score();
+				ScoreEntity s = new ScoreEntity();
 				s.setId(rs.getInt("id"));
 				s.setSubjectName(rs.getString("subject_name"));
 				s.setEvaluation(rs.getString("evaluation"));
@@ -33,7 +33,7 @@ public class ScoreDAO {
 		return list;
 	}
 
-	public void insert(Score score) throws Exception {
+	public void insert(ScoreEntity score) throws Exception {
 		Class.forName("org.postgresql.Driver");
 		String sql = "INSERT INTO db1.learning_scores (subject_name, evaluation, update_date) VALUES (?, ?, CURRENT_TIMESTAMP)";
 

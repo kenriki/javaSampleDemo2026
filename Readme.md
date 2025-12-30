@@ -20,3 +20,14 @@ http://localhost:8080/Sample1App/api/data
 ## ③ マスタへの反映確認
 
 <img src="src/main/webapp/img/img03.png" width="600">
+
+## ④ 削除するものを選択して「選択した行を削除」をクリックする。  
+
+<img src="src/main/webapp/img/img04.png" width="600">  
+<img src="src/main/webapp/img/img05.png" width="600">  
+<img src="src/main/webapp/img/img06.png" width="600">  
+
+## ⑤ 削除したあとの画面とマスタの確認  
+
+<img src="src/main/webapp/img/img07.png" width="600">  
+<img src="src/main/webapp/img/img08.png" width="600">  
