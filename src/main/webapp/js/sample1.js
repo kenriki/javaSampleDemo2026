@@ -77,25 +77,26 @@ $(document).ready(function() {
 
 // 全件削除ボタンのクリックイベント
 $('#allDeleteButton').on('click', function() {
-	const password = prompt("【警告】全データを削除し、No.1からリセットします。\n管理者パスワードを入力してください：");
+	const pwd = prompt("管理者パスワードを入力してください。\n※すべてのデータが消去され、No.1からリセットされます。");
+	if (!pwd) return; // キャンセル時は何もしない
 
-	if (password) {
-		if (confirm("本当にすべてのデータを削除してよろしいですか？この操作は取り消せません。")) {
-			$.ajax({
-				url: '/Sample1App/api/score', // サーブレットのURL
-				type: 'POST',
-				data: {
-					action: 'truncate',
-					password: password
-				},
-				success: function() {
-					alert("すべてのデータを削除し、IDをリセットしました。");
-					table.ajax.reload(); // 画面を更新（0件になる）
-				},
-				error: function(xhr) {
-					alert(xhr.responseText); // 「パスワードが違います」等を表示
-				}
-			});
-		}
+	if (confirm("本当にすべてのデータを削除してよろしいですか？\nこの操作は取り消せません。")) {
+		$.ajax({
+			url: API_URL, // ScoreController（@WebServlet("/api/data")）へ送信
+			type: 'POST',
+			data: {
+				action: 'truncate',
+				password: pwd
+			},
+			success: function(response) {
+				alert("すべてのデータを削除し、IDをリセットしました。");
+				// 【重要】ここで画面をリロードして最新の状態を表示する
+				location.reload();
+			},
+			error: function(xhr) {
+				// パスワード間違い（401）などのエラーメッセージを表示
+				alert("エラー: " + xhr.responseText);
+			}
+		});
 	}
 });

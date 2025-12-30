@@ -31,7 +31,7 @@ public class ScoreController extends BaseServlet {
 			// 1. Mapperインターフェースを取得
 			ScoreMapper mapper = session.getMapper(ScoreMapper.class);
 
-			// 2. MyBatis経由で全件取得を実行
+			// 2. MyBatis経由で全件取得を実行（論理削除フラグ 'D' 以外を取得）
 			List<ScoreEntity> scores = mapper.findAll();
 
 			// 3. データを JSON 文字列に変換
@@ -43,7 +43,6 @@ public class ScoreController extends BaseServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 			String errMsg = msgProps.getProperty("error.db.connection", "データ取得に失敗しました。");
-			System.err.println(errMsg);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, errMsg);
 		}
 	}
@@ -55,21 +54,47 @@ public class ScoreController extends BaseServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		// 隠しパラメータ等で処理を分岐（例: action=delete なら削除）
+		// まず「何をするか（action）」を受け取る
 		String action = request.getParameter("action");
+		String password = request.getParameter("password");
+
+		// --- A. 全件削除（TRUNCATE）処理 ---
+		if ("truncate".equals(action)) {
+			// 親クラスのメソッドでパスワード照合
+			if (checkAdminPassword(password)) {
+				// 親クラスのメソッドでTRUNCATE実行（IDもリセットされる）
+				executeTruncate();
+				response.getWriter().write("success");
+			} else {
+				// パスワード不一致エラー
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				response.getWriter().write("管理者パスワードが正しくありません。");
+			}
+			return; // 処理終了
+		}
 
 		try (SqlSession session = sqlSessionFactory.openSession()) {
 			ScoreMapper mapper = session.getMapper(ScoreMapper.class);
 
 			if ("delete".equals(action)) {
-				// --- 削除処理 ---
-				int id = Integer.parseInt(request.getParameter("id"));
-				mapper.delete(id); // MyBatis実行
+				// --- B. 選択行の削除処理（論理削除） ---
+				String idStr = request.getParameter("id");
+				if (idStr != null) {
+					int id = Integer.parseInt(idStr);
+					mapper.delete(id); // XML側でフラグを'D'に更新
+				}
 
 			} else {
-				// --- 登録処理 ---
+				// --- C. 通常の登録処理 ---
 				String subjectName = request.getParameter("subjectName");
 				String evaluation = request.getParameter("evaluation");
+
+				// 入力値チェック（NULLによるDB制約違反を防止）
+				if (subjectName == null || subjectName.trim().isEmpty()) {
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					response.getWriter().write("学習項目名を入力してください。");
+					return;
+				}
 
 				ScoreEntity score = new ScoreEntity();
 				score.setSubjectName(subjectName);
@@ -78,18 +103,18 @@ public class ScoreController extends BaseServlet {
 				mapper.insert(score); // MyBatis実行
 			}
 
-			// 重要：更新系処理は必ずコミットする
+			// 更新系処理は必ずコミット
 			session.commit();
-			response.setStatus(HttpServletResponse.SC_OK);
+			response.getWriter().write("success");
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "サーバーエラーが発生しました。");
 		}
 	}
 
 	/**
-	 * DataTable用のJSON形式に変換するヘルパーメソッド
+	 * DataTable用のJSON形式に変換するヘルパーメソッド IDはデータベースの値をそのまま使用
 	 */
 	private String convertToJson(List<ScoreEntity> scores) {
 		StringBuilder sb = new StringBuilder("{\"data\": [");
@@ -97,7 +122,7 @@ public class ScoreController extends BaseServlet {
 			ScoreEntity s = scores.get(i);
 			if (i > 0)
 				sb.append(",");
-			// 各行のデータを配列形式で構築
+			// 1カラム目をIDとして構築
 			sb.append(String.format("[\"%d\",\"%s\",\"%s\",\"%s\"]", s.getId(), s.getSubjectName(), s.getEvaluation(),
 					s.getUpdateDate()));
 		}
