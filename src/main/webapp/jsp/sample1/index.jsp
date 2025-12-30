@@ -34,6 +34,10 @@
 		<button type="button" id="btnDeleteSelected" class="btn-danger"
 			style="background-color: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">
 			選択した行を削除</button>
+		<%-- 全件削除ボタン（管理者用） 
+		<button type="button" id="allDeleteButton" class="btn-danger"
+			style="background-color: #6c757d; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+			全件データ削除</button>--%>
 	</div>
 
 	<%-- データテーブル --%>
@@ -55,7 +59,8 @@
 
 <script src="${pageContext.request.contextPath}/js/jquery-3.7.1.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/jquery.dataTables.js"></script>
-<script src="${pageContext.request.contextPath}/js/dataTables.select.min.js"></script>
+<script
+	src="${pageContext.request.contextPath}/js/dataTables.select.min.js"></script>
 
 <script>
 	// JS側で利用するAPIパス

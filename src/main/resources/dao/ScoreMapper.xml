@@ -3,19 +3,34 @@
 <mapper namespace="dao.ScoreMapper">
 	<select id="findAll" resultType="entity.ScoreEntity">
 		SELECT id,
-		subject_name AS subjectName,
+		subject_name AS
+		subjectName,
 		evaluation,
 		update_date AS updateDate
-		FROM "db1"."learning_scores"
-		ORDER BY id
+		FROM
+		"db1"."learning_scores"
+		WHERE delete_flag IS NULL OR delete_flag != 'D'
+		ORDER BY id ASC
 	</select>
 
 	<insert id="insert" parameterType="entity.ScoreEntity">
-		INSERT INTO db1.learning_scores (subject_name, evaluation, update_date)
-		VALUES (#{subjectName}, #{evaluation}, CURRENT_TIMESTAMP)
+		INSERT INTO
+		db1.learning_scores (subject_name, evaluation, update_date)
+		VALUES
+		(#{subjectName}, #{evaluation}, CURRENT_TIMESTAMP)
 	</insert>
 
-	<delete id="delete" parameterType="int">
-		DELETE FROM db1.learning_scores WHERE id = #{id}
-	</delete>
+	<update id="delete" parameterType="int">
+		UPDATE "db1"."learning_scores"
+		SET delete_flag = 'D'
+		WHERE id = #{id}
+	</update>
+
+	<select id="getAdminPassword" resultType="string">
+		SELECT password FROM "db1"."admin_users" WHERE admin_name = 'admin'
+	</select>
+
+	<update id="truncateTable">
+		TRUNCATE TABLE "db1"."learning_scores" RESTART IDENTITY
+	</update>
 </mapper>

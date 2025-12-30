@@ -51,7 +51,7 @@ $(document).ready(function() {
 			return;
 		}
 
-		if (confirm(selectedData.length + " 件のデータを削除しますか？")) {
+		if (confirm(selectedData.length + " データを削除しますか？")) {
 			// 現在の仕様に合わせて1件目のIDを取得
 			const id = selectedData[0][0];
 
@@ -72,4 +72,30 @@ $(document).ready(function() {
 			});
 		}
 	});
+});
+
+
+// 全件削除ボタンのクリックイベント
+$('#allDeleteButton').on('click', function() {
+	const password = prompt("【警告】全データを削除し、No.1からリセットします。\n管理者パスワードを入力してください：");
+
+	if (password) {
+		if (confirm("本当にすべてのデータを削除してよろしいですか？この操作は取り消せません。")) {
+			$.ajax({
+				url: '/Sample1App/api/score', // サーブレットのURL
+				type: 'POST',
+				data: {
+					action: 'truncate',
+					password: password
+				},
+				success: function() {
+					alert("すべてのデータを削除し、IDをリセットしました。");
+					table.ajax.reload(); // 画面を更新（0件になる）
+				},
+				error: function(xhr) {
+					alert(xhr.responseText); // 「パスワードが違います」等を表示
+				}
+			});
+		}
+	}
 });
