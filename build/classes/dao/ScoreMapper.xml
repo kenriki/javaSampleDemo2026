@@ -1,36 +1,147 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dao.ScoreMapper">
+
+	<!-- 全件取得（登録者名を含む） -->
 	<select id="findAll" resultType="entity.ScoreEntity">
-		SELECT id,
-		subject_name AS
-		subjectName,
+		SELECT
+		id,
+		subject_name AS subjectName,
 		evaluation,
-		update_date AS updateDate
-		FROM
-		"db1"."learning_scores"
-		WHERE delete_flag IS NULL OR delete_flag != 'D'
+		update_date AS updateDate,
+		created_by AS createdBy,
+		deleted_by AS deletedBy
+		FROM "db1"."learning_scores"
+		WHERE delete_flag IS NULL OR
+		delete_flag != 'D'
 		ORDER BY id ASC
 	</select>
 
+	<!-- 新規登録（登録者名を含む） -->
 	<insert id="insert" parameterType="entity.ScoreEntity">
 		INSERT INTO
-		db1.learning_scores (subject_name, evaluation, update_date)
-		VALUES
-		(#{subjectName}, #{evaluation}, CURRENT_TIMESTAMP)
+		db1.learning_scores (
+		subject_name,
+		evaluation,
+		update_date,
+		created_by
+		)
+		VALUES (
+		#{subjectName},
+		#{evaluation},
+		CURRENT_TIMESTAMP,
+		#{createdBy}
+		)
 	</insert>
 
-	<update id="delete" parameterType="int">
+	<!-- 論理削除（削除者名を含む） -->
+	<update id="delete" parameterType="map">
 		UPDATE "db1"."learning_scores"
-		SET delete_flag = 'D'
+		SET delete_flag = 'D',
+		deleted_by = #{deletedBy}
 		WHERE id = #{id}
 	</update>
 
 	<select id="getAdminPassword" resultType="string">
-		SELECT password FROM "db1"."admin_users" WHERE admin_name = 'admin'
+		SELECT password FROM
+		"db1"."admin_users" WHERE admin_name = 'admin'
 	</select>
 
 	<update id="truncateTable">
-		TRUNCATE TABLE "db1"."learning_scores" RESTART IDENTITY
+		TRUNCATE TABLE "db1"."learning_scores" RESTART
+		IDENTITY
 	</update>
+
+	<!-- ========== ユーザー認証関連SQL ========== -->
+
+	<select id="findUserByUsername" resultType="entity.UserEntity">
+		SELECT
+		user_id AS userId,
+		username,
+		password,
+		email,
+		created_at AS createdAt,
+		updated_at AS updatedAt
+		FROM db1.users
+		WHERE username = #{username}
+	</select>
+
+	<select id="authenticateUser" resultType="entity.UserEntity">
+		SELECT
+		user_id AS userId,
+		username,
+		email,
+		created_at AS createdAt,
+		updated_at AS updatedAt
+		FROM db1.users
+		WHERE username = #{username}
+		AND password = #{password}
+	</select>
+
+	<insert id="insertUser" parameterType="entity.UserEntity"
+		useGeneratedKeys="true" keyProperty="userId">
+		INSERT INTO db1.users (username,
+		password, email)
+		VALUES (#{username}, #{password}, #{email})
+	</insert>
+
+	<update id="updateUser" parameterType="entity.UserEntity">
+		UPDATE db1.users
+		SET
+		username = #{username},
+		email = #{email},
+		updated_at = CURRENT_TIMESTAMP
+		WHERE user_id = #{userId}
+	</update>
+
+	<select id="findUserById" resultType="entity.UserEntity">
+		SELECT
+		user_id AS userId,
+		username,
+		email,
+		created_at AS createdAt,
+		updated_at AS updatedAt
+		FROM db1.users
+		WHERE user_id = #{userId}
+	</select>
+
+	<delete id="deleteUser" parameterType="int">
+		DELETE FROM db1.users
+		WHERE user_id = #{userId}
+	</delete>
+
+	<select id="findAllUsers" resultType="entity.UserEntity">
+		SELECT
+		user_id AS userId,
+		username,
+		email,
+		created_at AS createdAt,
+		updated_at AS updatedAt
+		FROM db1.users
+		ORDER BY user_id ASC
+	</select>
+
+	<select id="countUsers" resultType="int">
+		SELECT COUNT(*) FROM
+		db1.users
+	</select>
+
+	<select id="findUserByEmail" resultType="entity.UserEntity">
+		SELECT
+		user_id AS userId,
+		username,
+		email,
+		created_at AS createdAt,
+		updated_at AS updatedAt
+		FROM db1.users
+		WHERE email = #{email}
+	</select>
+
+	<update id="updatePassword">
+		UPDATE db1.users
+		SET password = #{password},
+		updated_at = CURRENT_TIMESTAMP
+		WHERE user_id = #{userId}
+	</update>
+
 </mapper>

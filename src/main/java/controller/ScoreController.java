@@ -10,6 +10,7 @@ import entity.ScoreEntity;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import servlet.BaseServlet;
 
 /**
@@ -34,7 +35,7 @@ public class ScoreController extends BaseServlet {
 			// 2. MyBatis経由で全件取得を実行（論理削除フラグ 'D' 以外を取得）
 			List<ScoreEntity> scores = mapper.findAll();
 
-			// 3. データを JSON 文字列に変換
+			// 3. データを JSON 文字列に変換 (ここで列数をJSPに合わせる)
 			String json = convertToJson(scores);
 
 			// 4. 親クラス(BaseServlet)のメソッドでレスポンスを返す
@@ -60,17 +61,14 @@ public class ScoreController extends BaseServlet {
 
 		// --- A. 全件削除（TRUNCATE）処理 ---
 		if ("truncate".equals(action)) {
-			// 親クラスのメソッドでパスワード照合
 			if (checkAdminPassword(password)) {
-				// 親クラスのメソッドでTRUNCATE実行（IDもリセットされる）
 				executeTruncate();
 				response.getWriter().write("success");
 			} else {
-				// パスワード不一致エラー
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				response.getWriter().write("管理者パスワードが正しくありません。");
 			}
-			return; // 処理終了
+			return;
 		}
 
 		try (SqlSession session = sqlSessionFactory.openSession()) {
@@ -81,7 +79,7 @@ public class ScoreController extends BaseServlet {
 				String idStr = request.getParameter("id");
 				if (idStr != null) {
 					int id = Integer.parseInt(idStr);
-					mapper.delete(id); // XML側でフラグを'D'に更新
+					mapper.delete(id);
 				}
 
 			} else {
@@ -89,21 +87,32 @@ public class ScoreController extends BaseServlet {
 				String subjectName = request.getParameter("subjectName");
 				String evaluation = request.getParameter("evaluation");
 
-				// 入力値チェック（NULLによるDB制約違反を防止）
 				if (subjectName == null || subjectName.trim().isEmpty()) {
 					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 					response.getWriter().write("学習項目名を入力してください。");
 					return;
 				}
 
+				// セッションからログインユーザー名を取得する
+				HttpSession httpSession = request.getSession(false);
+				String loginUser = "システム"; // デフォルト値
+				if (httpSession != null) {
+					String username = (String) httpSession.getAttribute("username");
+					if (username != null && !username.isEmpty()) {
+						loginUser = username;
+					}
+				}
+
 				ScoreEntity score = new ScoreEntity();
 				score.setSubjectName(subjectName);
 				score.setEvaluation(evaluation);
 
-				mapper.insert(score); // MyBatis実行
+				// セッション上のユーザー名を設定する
+				score.setCreatedBy(loginUser);
+
+				mapper.insert(score);
 			}
 
-			// 更新系処理は必ずコミット
 			session.commit();
 			response.getWriter().write("success");
 
@@ -114,7 +123,7 @@ public class ScoreController extends BaseServlet {
 	}
 
 	/**
-	 * DataTable用のJSON形式に変換するヘルパーメソッド IDはデータベースの値をそのまま使用
+	 * DataTable用のJSON形式に変換するヘルパーメソッド JSPの <thead> にある 7項目と順番を一致させる必要があります。
 	 */
 	private String convertToJson(List<ScoreEntity> scores) {
 		StringBuilder sb = new StringBuilder("{\"data\": [");
@@ -122,11 +131,25 @@ public class ScoreController extends BaseServlet {
 			ScoreEntity s = scores.get(i);
 			if (i > 0)
 				sb.append(",");
-			// 1カラム目をIDとして構築
-			sb.append(String.format("[\"%d\",\"%s\",\"%s\",\"%s\"]", s.getId(), s.getSubjectName(), s.getEvaluation(),
-					s.getUpdateDate()));
+
+			// 配列形式で 7列分作成:
+			// [0]ID, [1]学習項目, [2]評価, [3]登録者, [4]更新者, [5]登録日, [6]更新日
+			sb.append(String.format("[\"%d\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]", s.getId(),
+					escapeJson(s.getSubjectName()), escapeJson(s.getEvaluation()),
+					s.getCreatedBy() != null ? escapeJson(s.getCreatedBy()) : "", "", // 更新者 (Entityにフィールドがないため空)
+					"", // 登録日 (Entityにフィールドがないため空)
+					s.getUpdateDate() != null ? s.getUpdateDate() : ""));
 		}
 		sb.append("]}");
 		return sb.toString();
+	}
+
+	/**
+	 * JSON文字列内の特殊文字をエスケープする簡易メソッド
+	 */
+	private String escapeJson(String str) {
+		if (str == null)
+			return "";
+		return str.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
 	}
 }

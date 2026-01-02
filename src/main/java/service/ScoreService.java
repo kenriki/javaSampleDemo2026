@@ -28,7 +28,7 @@ public class ScoreService {
         try (SqlSession session = sessionFactory.openSession()) {
             ScoreMapper mapper = session.getMapper(ScoreMapper.class);
             mapper.insert(score);
-            session.commit(); // 登録時はコミットが必要です
+            session.commit(); 
         }
     }
     

@@ -1,20 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee" version="5.0">
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+         https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+	version="5.0">
 
-    <display-name>Sample1App</display-name>
+	<display-name>Sample1App</display-name>
 
-    <welcome-file-list>
-        <welcome-file>jsp/array_sample.jsp</welcome-file>
-        <welcome-file>jsp/sample1/index.jsp</welcome-file>
-    </welcome-file-list>
+	<welcome-file-list>
+		<welcome-file>login/index.jsp</welcome-file>
+	</welcome-file-list>
 
-    <servlet>
-        <servlet-name>ScoreAPI</servlet-name>
-        <servlet-class>controller.ScoreController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ScoreAPI</servlet-name>
-        <url-pattern>/api/data</url-pattern>
-    </servlet-mapping>
+	<servlet>
+		<servlet-name>ScoreAPI</servlet-name>
+		<servlet-class>controller.ScoreController</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>LoginServlet</servlet-name>
+		<servlet-class>controller.LoginController</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>LogoutServlet</servlet-name>
+		<servlet-class>controller.LogoutController</servlet-class>
+	</servlet>
 
+	<servlet-mapping>
+		<servlet-name>ScoreAPI</servlet-name>
+		<url-pattern>/api/data</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>LoginServlet</servlet-name>
+		<url-pattern>/login</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>LogoutServlet</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+		<cookie-config>
+			<http-only>true</http-only>
+		</cookie-config>
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
 </web-app>

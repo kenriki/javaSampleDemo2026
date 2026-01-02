@@ -35,7 +35,7 @@ $(document).ready(function() {
 			success: function() {
 				alert('登録が完了しました！');
 				$('#subjectName').val('');
-				table.ajax.reload(); // 正常に動作します
+				table.ajax.reload(); 
 			}
 		});
 	});
